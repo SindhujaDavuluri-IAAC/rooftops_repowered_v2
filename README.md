@@ -1,0 +1,2 @@
+# researchstudio2026_rooftops_repowered
+Post-midterm development pipeline
