@@ -426,3 +426,15 @@ FodyWeavers.xsd
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
+
+# Python research pipeline: source/configuration and compact reports stay trackable.
+/.venv/
+__pycache__/
+*.py[cod]
+/.pytest_cache/
+/pytest-cache-files-*/
+/tools/
+/pipeline/models/**/*.joblib
+/datasets/processed/*.csv.gz
+/datasets/results/*predictions.csv.gz
+/datasets/synthetic/energyplus/

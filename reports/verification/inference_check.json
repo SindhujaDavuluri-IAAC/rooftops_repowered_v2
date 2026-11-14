@@ -1,0 +1,8 @@
+{
+  "checked_utc": "2026-11-14T21:52:44.205994+00:00",
+  "rows": 168,
+  "cli_matches_direct_model": true,
+  "simulation_splits_disjoint": true,
+  "host_selected": false,
+  "scope": "Synthetic reference office inputs only; no case-study demand file created."
+}
