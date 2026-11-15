@@ -33,6 +33,9 @@ SOURCES = {
     'impact': 'config/impact_assumptions.json',
     'footprint': 'datasets/inputs/roof_capacity/A160_footprint.geojson',
     'observed': 'datasets/inputs/roof_capacity/A160_observed_panel_coverage.geojson',
+    'existing_pv_record': 'config/a160_existing_pv.json',
+    'pvgis_hypothetical_report': 'reports/pvgis/A160/hypothetical_acquisition.json',
+    'pvgis_hypothetical_settings': 'config/pvgis_hypothetical.json',
 }
 for assessment in ASSESSMENTS:
     SOURCES[assessment] = f'{ROOF}/{assessment}/roof_capacity_scenarios.csv'
@@ -247,9 +250,8 @@ class RepositoryData:
 
     def stage(self, name):
         if name == 'pvgis':
-            return {**pending('A160 hourly production is not available.', ['Verified existing installed kWp, tilt and orientation',
-                'PVGIS weather period/database and system losses', 'Hourly CSV and timestamp metadata']),
-                'installed_capacity_kwp':None, 'annual_generation_kwh':None, 'data_origin':None}
+            from .solar import status
+            return status(self)
         if name == 'demand':
             return {**pending('The office-reference model is available; A160/mixed-use demand is not validated.',
                 ['A160 geometry/HVAC and operation domain', 'Education, residential and hospitality physics archetypes',
@@ -303,21 +305,23 @@ class RepositoryData:
         except (OSError, subprocess.SubprocessError):
             commit = None
         times = []
-        for key in ('buildings','retrospective','additional','reference','metrics'):
+        for key in ('buildings','retrospective','additional','reference','metrics','existing_pv_record','pvgis_hypothetical_report'):
             try:
                 times.append(self.path(key).stat().st_mtime)
             except SourceUnavailable:
                 pass
-        return {'schema_version':'1.0', 'commit':commit, 'version':'a160-readonly-ui-1',
+        return {'schema_version':'1.1', 'commit':commit, 'version':'a160-readonly-ui-2-pvgis',
             'last_updated_utc':datetime.fromtimestamp(max(times),timezone.utc).isoformat() if times else None,
             'generated_at_utc':datetime.now(timezone.utc).isoformat(),
             'display_timezone':'Europe/Madrid', 'mode':'read_only_research_dashboard',
             'stages':{'roof':'provisional_screening' if self.scenarios()['state']=='available' else 'source_pending',
                 'office_model':'validated_simulation_domain' if self.model()['state']=='available' else 'source_pending',
+                'pvgis_hypothetical':'available' if self.stage('pvgis').get('hypothetical_state')=='available' else 'source_pending',
                 **{name:'pending' for name in ('pvgis','demand','sharing','impact')}},
             'private_meter_data_served':False, 'live_control':False}
 
     def dashboard(self):
-        return {'status':self.status(), 'buildings':self.buildings(), 'roof':self.scenarios(),
+        from .existing_pv import assess
+        return {'status':self.status(), 'buildings':self.buildings(), 'roof':self.scenarios(),'existing_pv':assess(self),
             'reference':self.reference(), 'model':self.model(), 'evidence':self.evidence(),
             **{stage:self.stage(stage) for stage in ('pvgis','demand','sharing','impact')}}

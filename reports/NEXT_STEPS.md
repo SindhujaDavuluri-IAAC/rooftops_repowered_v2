@@ -1,14 +1,26 @@
 # Project progress and next steps
 
+## Existing PV / official PVGIS integration (15 November 2026)
+
+Priorities 1–2 now include a direct image-reference vs predicted-layout comparison
+and an official PVGIS hourly sensitivity explorer. Automatic acquisition produced
+five positive hypothetical scenarios from four cached responses, 8,760 rows each;
+zero capacity skips simulation. Actual installed PV specifications/generation stay
+unknown. All hypothetical supply remains sharing-ineligible. See
+[results and verification](../ui/docs/pv-integration/README.md) and
+[automatic/manual acquisition](../pipeline/step_03_pvgis/README.md).
+Stitch authentication, private project creation and approved HTML-reference upload
+are verified. The next substantive phase is site-appropriate demand preparation
+and independent sharing evaluation, with its geometry/weather/data gates intact.
+
 ## Read-only UI integration (15 November 2026)
 
 The approved seven-view prototype is connected to real A160 roof/reference and
 office-model reports. Run `python -m ui.server`; see [UI instructions](../ui/README.md)
 and [test/screenshots report](../ui/docs/IMPLEMENTATION_REPORT.md). Existing models,
 scientific outputs and validation gates are unchanged. Energy/impact stages stay
-pending. Google Stitch MCP is registered; authentication/project creation await
-the user's key in the masked local setup window. Next research input remains
-actual installed PV specifications and roof/access evidence, before PVGIS yield.
+pending for the actual case. The subsequent PV integration above supersedes the
+initial acquisition status; hypothetical modeled generation is now available.
 
 ## A160 rooftop milestone (2026-11-15)
 

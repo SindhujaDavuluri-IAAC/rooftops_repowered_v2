@@ -19,6 +19,21 @@ button:disabled { opacity:.55;cursor:wait; }.headline-num,.metric .num { overflo
 .footnote,.data-row dd,.source-tile,.lead { overflow-wrap:anywhere; }
 .muted,.lead,.footnote,.data-row dt,.progress-labels,.cluster-item span,.chart-top p { color:#53675b; }
 .label,.metric-label { color:#4d6557; }.inline-source { color:#315c47; }
+.candidate-evidence { margin-top:9px;font-size:11px;line-height:1.6; }
+.candidate-evidence summary { cursor:pointer;color:#315c47;font-weight:650; }
+.candidate-evidence p { margin:8px 0;color:#53675b; }
+.metric .muted,.source-tile small { color:#53675b; }
+.tag.pending { color:#77541f; }.tag.low { color:#80463d; }.tag.neutral { color:#465e50; }
+.existing-pv-card { margin:20px 0; }.existing-pv-card .scenario-select { margin:18px 0; }
+.table-scroll { overflow-x:auto; }.comparison-table { min-width:650px; }
+.comparison-table caption { text-align:left;color:#53675b;font-size:12px;padding:12px 0; }
+.comparison-table th { color:#4d6557; }.comparison-table td { white-space:nowrap; }
+#comparison-plot svg,#pvgis-chart svg { width:100%;height:auto;display:block; }
+#comparison-summary { line-height:1.7; }#pvgis-explorer { margin-top:15px; }
+#pvgis-case { max-width:100%;width:100%;white-space:normal; }
+.pv-date-label { display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:18px 0;font-size:12px;color:#405c4d; }
+.pv-date-label input { min-height:38px;background:#fffefa;border:1px solid #afc2b1;border-radius:7px;padding:7px;color:#31503e; }
+#pvgis-run-details .data-row { align-items:flex-start;gap:16px; }#pvgis-run-details dd { max-width:60%;text-align:right; }
 /* Keep mobile navigation usable rather than relying on unidentified icon glyphs. */
 @media(max-width:920px) {
   .sidebar { flex-direction:column;align-items:stretch;overflow:visible; }

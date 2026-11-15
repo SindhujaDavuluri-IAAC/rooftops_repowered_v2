@@ -1,8 +1,8 @@
-# Public read-only API — schema 1.0
+# Public read-only API — schema 1.1
 
 GET/HEAD, UTF-8 JSON, `Cache-Control: no-store`. Loopback only; no permissive CORS.
 Writes return 405; unknown paths 404; invalid/duplicate query parameters 400.
-Only the map endpoint accepts query parameters. No account credentials, arbitrary
+Only the map and hypothetical-hourly endpoints accept allowlisted query parameters. No account credentials, arbitrary
 files, private meters, raw caches or local absolute paths are served.
 
 | Endpoint | Response |
@@ -13,8 +13,10 @@ files, private meters, raw caches or local absolute paths are served.
 | `/api/roof/A160/scenarios` | Separate retrospective/additional groups, real CSV rows, hashes, units/assumptions; installed kWp null |
 | `/api/roof/A160/map?assessment=…&scenario=…` | Real WGS84 footprint, eligible and panel GeoJSON; only `retrospective/additional` and `conservative/base/optimistic` accepted |
 | `/api/roof/A160/reference` | Reference coverage/sensitivity, IoU, capture dates, limitations, legacy map comparison |
+| `/api/roof/A160/existing-pv` | Existing-PV dossier, unknown installed specifications and observed-vs-predicted area/IoU comparison |
+| `/api/pvgis/hypothetical/hourly?scenario=retrospective_base` | Exact cached modeled UTC samples, source/model metadata, hypothetical/ineligible flags; six fixed scenario IDs only |
 | `/api/models/office-surrogate` | Reported metrics/splits/domain, model version, simulated origin and transfer restriction |
-| `/api/pvgis/status` | Pending verified installation/settings/hourly generation |
+| `/api/pvgis/status` | Actual generation pending; separate hypothetical scenario summaries, assumptions, source hashes and acquisition modes |
 | `/api/demand/status` | Pending site/mixed-use model domain and reference demand |
 | `/api/sharing/status` | Pending aligned supply/load and independent evaluation |
 | `/api/impact/status` | Pending balances and dated sourced assumptions |

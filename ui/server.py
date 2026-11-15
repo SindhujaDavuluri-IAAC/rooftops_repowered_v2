@@ -13,6 +13,7 @@ STATIC = {
     '/index.html': (UI / 'index.html', 'text/html; charset=utf-8'),
     '/app.js': (UI / 'app.js', 'text/javascript; charset=utf-8'),
     '/profiles.js': (UI / 'profiles.js', 'text/javascript; charset=utf-8'),
+    '/pv-assessment.js': (UI / 'pv-assessment.js', 'text/javascript; charset=utf-8'),
     '/styles.css': (UI / 'styles.css', 'text/css; charset=utf-8'),
     '/integration.css': (UI / 'integration.css', 'text/css; charset=utf-8'),
     '/assets/neighbourhood.jpg': (UI / 'assets/neighbourhood.jpg', 'image/jpeg'),
@@ -67,9 +68,16 @@ def handler_for(repository):
                     '/api/case-study/buildings':repository.buildings,
                     '/api/roof/A160/scenarios':repository.scenarios, '/api/roof/A160/reference':repository.reference,
                     '/api/models/office-surrogate':repository.model, '/api/evidence':repository.evidence}
+                from .existing_pv import assess
+                from .solar import hourly
+                routes['/api/roof/A160/existing-pv']=lambda:assess(repository)
                 routes.update({f'/api/{stage}/status': lambda stage=stage: repository.stage(stage)
                                for stage in ('pvgis','demand','sharing','impact')})
-                if path == '/api/roof/A160/map':
+                if path == '/api/pvgis/hypothetical/hourly':
+                    if set(query)!={'scenario'} or len(query['scenario'])!=1:
+                        raise ValueError('One known hypothetical scenario is required')
+                    result=hourly(repository,query['scenario'][0])
+                elif path == '/api/roof/A160/map':
                     if set(query) != {'assessment','scenario'} or any(len(values) != 1 for values in query.values()):
                         raise ValueError('Map requires one assessment and one scenario')
                     result = repository.map(query['assessment'][0], query['scenario'][0])

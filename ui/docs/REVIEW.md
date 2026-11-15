@@ -1,5 +1,11 @@
 # Connect approved A160 dashboard to read-only repository evidence
 
+The subsequent priority-2 change adds an unknown-specifications existing-PV
+dossier, image-vs-prediction comparison, official PVGIS acquisition/manual fallback
+and a separate hypothetical-generation explorer. Current verification is 70
+Python tests plus 11 general and 5 PV browser groups; see [PV results](pv-integration/README.md).
+Actual generation is still null and hypothetical supply is rejected by `match`.
+
 The prototype had copied numeric literals and no backend. This change reads actual
 roof scenarios, candidates, reference/source metadata and model reports through an
 allowlisted local API. Seven views remain, with real roof geometry and an evidence

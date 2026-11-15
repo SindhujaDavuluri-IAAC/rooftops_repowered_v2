@@ -28,8 +28,9 @@ Office metrics, split counts and reference geometry come from model reports.
 The hourly evaluation card counts actual validation + test rows, not invented
 training hours. Scientific sources remain authoritative for all findings.
 
-Existing installed kWp is null. PVGIS generation, site/mixed-use demands,
-evaluated sharing and impacts remain visibly pending with named missing inputs.
+Existing installed kWp and actual generation remain null. Official hypothetical
+PVGIS sensitivity is now available separately: see [the PV integration](docs/pv-integration/README.md).
+Site/mixed-use demands, evaluated sharing and impacts remain pending.
 The normalized rhythm explorer is `ILLUSTRATIVE_NOT_SIMULATED`, never hourly kWh.
 Strategy controls define comparisons and execute no accounting computations.
 The conceptual neighborhood artwork is separate from the real north-up roof
@@ -83,18 +84,22 @@ Run `ui/tests/baseline.py` only to deliberately recapture the supplied original.
 
 ## Next gated work
 
-1. Authenticate Stitch in the masked local window, verify/create the requested
-   Research Studio project and save its returned resource/link. Review graphics
-   separately from scientific development.
+1. Review the integrated existing-PV comparison and hypothetical PVGIS explorer.
+   Stitch is authenticated and the approved HTML is linked to the private Research
+   Studio project; graphic redesign remains separate from scientific development.
 2. Obtain actual A160 PV specifications/installation records and roof-access
    details. Image area/row blocks are not verified installed kWp.
-3. Choose sourced PVGIS weather/loss settings; import an appropriate hourly series
-   through existing generation-role and calendar guards.
+3. Refine explicit hypothetical PVGIS assumptions as needed, or establish a separate
+   verified existing-system generation input after installation evidence arrives.
 4. Prepare an A160-appropriate office simulation domain and separate school,
    residential and hotel archetypes before AI/domain expansion or demand display.
 5. Freeze share plans, evaluate on independent aligned demands, preserve energy
    conservation/no-gain cases, then apply dated sourced impact assumptions.
 
-These are documented integration points, not executed in this first pass. Existing
-PVGIS, inference, balance and impact guards are unchanged. Future energy files
-require reviewed adapters and metadata checks; file existence alone is insufficient.
+Demand/sharing/impact packages remain prepared rather than executed. Existing
+PVGIS/inference/accounting guards remain; the case-study boundary now additionally
+rejects explicitly hypothetical/ineligible supply CSVs. No model was retrained.
+
+Automatic acquisition: `python -m pipeline pvgis-acquire`. The UI reads cached
+results; it never calls JRC from browser JavaScript. See
+[acquisition/manual-fallback instructions](../pipeline/step_03_pvgis/README.md).

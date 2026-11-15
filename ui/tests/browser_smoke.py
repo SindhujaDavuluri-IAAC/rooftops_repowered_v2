@@ -1,5 +1,6 @@
 """Offline browser acceptance checks using installed Chrome and a loopback server."""
 import json
+import argparse
 from pathlib import Path
 import sys
 import threading
@@ -9,17 +10,29 @@ sys.path.insert(0, str(ROOT))
 from playwright.sync_api import sync_playwright, expect
 from ui.server import make_server
 from ui.data import RepositoryData
+from ui.tests.accessibility import contrast_samples,capture_page
 
 
-def run():
-    out = ROOT / 'ui/docs/screenshots'
+def run(base_url=None, output_dir=None):
+    out = (ROOT / output_dir).resolve() if output_dir else ROOT / 'ui/docs/screenshots'
+    if not out.is_relative_to(ROOT):
+        raise ValueError('Browser evidence must stay within the workspace.')
     out.mkdir(parents=True, exist_ok=True)
     temporary = ROOT / 'ui/.test-output'
     temporary.mkdir(exist_ok=True)
-    server = make_server(0)
-    worker = threading.Thread(target=server.serve_forever, daemon=True)
-    worker.start()
-    base = f'http://127.0.0.1:{server.server_port}'
+    server = None
+    worker = None
+    if base_url:
+        from urllib.parse import urlsplit
+        parsed = urlsplit(base_url)
+        if parsed.scheme != 'http' or parsed.hostname not in ('localhost', '127.0.0.1'):
+            raise ValueError('Browser audit accepts a local HTTP dashboard only.')
+        base = base_url.rstrip('/')
+    else:
+        server = make_server(0)
+        worker = threading.Thread(target=server.serve_forever, daemon=True)
+        worker.start()
+        base = f'http://127.0.0.1:{server.server_port}'
     checks = []
     errors = []
     api = RepositoryData().dashboard()
@@ -34,14 +47,23 @@ def run():
             page.goto(base)
             expect(page.locator('#connection-status')).to_contain_text('Repository data connected')
             assert page.locator('#building-inventory .cluster-item').count() == len(api['buildings']['buildings'])
+            assert page.locator('.candidate-evidence').count()==len(api['buildings']['buildings'])
+            page.locator('.candidate-evidence summary').first.click()
+            expect(page.locator('.candidate-evidence').first).to_contain_text('installed kWp are unknown')
+            page.locator('.candidate-evidence summary').first.click()
             checks.append('Live public candidate inventory and repository connection')
+            contrast=contrast_samples(page)
+            assert all(sample['meets_normal_text_4_5'] for sample in contrast),contrast
+            checks.append('Eleven sampled text styles meet 4.5:1 contrast; keyboard/dialog checks remain separate')
             for view in ('overview','roof','solar','demand','sharing','impact','evidence'):
                 page.locator(f'.nav-btn[data-view="{view}"]').click()
                 expect(page.locator(f'#view-{view}')).to_be_visible()
                 assert not page.evaluate('document.documentElement.scrollWidth > innerWidth'), view
                 if view == 'roof':
                     expect(page.locator('#roof-map svg')).to_be_visible()
-                page.screenshot(path=str(out / f'desktop-{view}.png'), full_page=True)
+                if view=='solar' and api['pvgis'].get('hypothetical_state')=='available':
+                    expect(page.locator('#pvgis-chart svg')).to_be_visible()
+                capture_page(page,out / f'desktop-{view}.png')
             checks.append('All seven desktop views, no horizontal overflow, screenshots')
             page.locator('[data-view="roof"]').click()
             for scenario in ('conservative','base','optimistic'):
@@ -56,6 +78,7 @@ def run():
             trigger = page.get_by_role('button', name='Sources & assumptions')
             trigger.click()
             expect(page.locator('#evidence-dialog')).to_be_visible()
+            expect(page.locator('#evidence-dialog')).to_contain_text('Roof model version:')
             page.keyboard.press('Tab')
             assert page.evaluate('document.getElementById("evidence-dialog").contains(document.activeElement)')
             page.keyboard.press('Escape')
@@ -95,7 +118,7 @@ def run():
                 page.locator(f'.nav-btn[data-view="{view}"]').click()
                 expect(page.locator(f'#view-{view}')).to_be_visible()
                 assert not page.evaluate('document.documentElement.scrollWidth > innerWidth'), f'mobile {view}'
-                page.screenshot(path=str(out / f'mobile-{view}.png'), full_page=True)
+                capture_page(page,out / f'mobile-{view}.png')
             checks.append('All seven mobile views and screenshots; labeled scrollable navigation; no overflow')
             with page.expect_download() as download:
                 page.locator('#export-config-mobile').click()
@@ -110,13 +133,20 @@ def run():
             assert page.locator('#export-config-mobile').is_disabled()
             checks.append('Offline/backend failure leaves values pending and export disabled')
             assert not errors, errors
-            report={'status':'passed','browser':browser.version,'checks_passed':len(checks),'checks':checks,'page_errors':errors,'external_network_required':False}
+            report={'status':'passed','browser':browser.version,'checks_passed':len(checks),'checks':checks,'page_errors':errors,'external_network_required':False,
+                    'server_mode':'existing_user_dashboard' if base_url else 'ephemeral_test_server','base_url':base}
             browser.close()
-        (ROOT/'ui/docs/browser_results.json').write_text(json.dumps(report,indent=2)+'\n')
+        (out.parent/'browser_results.json').write_text(json.dumps(report,indent=2)+'\n')
+        (out.parent/'contrast_samples.json').write_text(json.dumps({'method':'Computed solid-color samples; not a full accessibility certification','samples':contrast},indent=2)+'\n')
         print(json.dumps(report,indent=2))
     finally:
-        server.shutdown();server.server_close();worker.join(timeout=5)
+        if server:
+            server.shutdown();server.server_close();worker.join(timeout=5)
 
 
 if __name__=='__main__':
-    run()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--base-url', help='Audit an already running loopback dashboard without stopping it')
+    parser.add_argument('--output-dir', help='Screenshot folder relative to the workspace')
+    args = parser.parse_args()
+    run(args.base_url, args.output_dir)

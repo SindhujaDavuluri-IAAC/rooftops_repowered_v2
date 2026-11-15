@@ -438,5 +438,7 @@ __pycache__/
 /tools/
 /pipeline/models/**/*.joblib
 /datasets/processed/*.csv.gz
+/datasets/processed/pvgis/**/*.csv
+/ui/docs/handover-audit/screenshots/
 /datasets/results/*predictions.csv.gz
 /datasets/synthetic/energyplus/

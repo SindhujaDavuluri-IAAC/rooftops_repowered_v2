@@ -1,5 +1,10 @@
 # First UI integration milestone — 15 November 2026
 
+**Follow-up:** priorities 1–2 now include existing-PV comparison and official
+hourly PVGIS sensitivity. See [current PV integration](pv-integration/README.md)
+for the 70-test / 11-general-browser / 5-PV-browser verification and new screens.
+The original first-pass record below is retained as implementation history.
+
 Branch: `feat/ui-integration-a160`. Base: `3cb20b9e58152829a87f82d1805ee323e314e79d`.
 Exact local review commits: `git log main..feat/ui-integration-a160`. No merge,
 push, deployment, model retraining or new scientific experiment was performed.

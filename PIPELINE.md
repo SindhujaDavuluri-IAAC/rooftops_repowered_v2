@@ -9,6 +9,14 @@ cluster; roof geometry and site assumptions remain unverified. V1 roof-capacity
 code is integrated in `pipeline/step_02_roof_capacity/`. All trained artifacts
 belong in `pipeline/models/`. The original staged plan follows below.
 
+**PV integration update, 15 November 2026:** the UI now compares the existing
+image reference against hypothetical roof layouts and reads official hourly
+PVGIS capacity-sensitivity results. Acquisition, cache/provenance, temporal
+normalization and manual fallback are in [step 03](pipeline/step_03_pvgis/README.md).
+Actual installed specifications/generation remain unknown; sensitivity output is
+separate and sharing-ineligible. The demand surrogate and frozen roof prediction
+remain unchanged.
+
 **2026-11-15 rooftop milestone update:** A160 footprint and dated public sources
 are obtained. Existing PV is confirmed. Run `python -m pipeline roof-feasibility`
 for separate retrospective validation and conditional additional-PV outputs.

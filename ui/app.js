@@ -88,6 +88,7 @@
       node.setAttribute('aria-pressed',String(node.dataset.roofScenario===scenario));
     });
     if (data) drawRoof();
+    window.RoofscapesPV?.selectScenario(scenario);
   }
   async function drawRoof() {
     const sequence=++mapRequest;
@@ -150,6 +151,11 @@
     card.append(element('h3',record.title),element('span',record.state,'tag estimated'));
     card.append(element('p',record.limitations));
     card.append(element('p',`Source date: ${record.source_date||'See source manifest'} · Units: ${record.unit}`,'muted'));
+    if (record.id==='model' && data.model.model_version) card.append(element('p',`Model report version: ${data.model.model_version}`,'muted'));
+    if (record.id==='roof') {
+      const version=row(state.assessment)?.model_version;
+      if (version) card.append(element('p',`Roof model version: ${version}`,'muted'));
+    }
     if (record.source_url) {
       const link=element('a','Open publisher source ↗','inline-source');link.href=record.source_url;link.target='_blank';link.rel='noreferrer';card.append(link);
     }
@@ -183,6 +189,14 @@
         const item=element('div',undefined,'cluster-item');
         const icon=element('div',building.is_host?'▤':'⌂',`cluster-icon ci-${building.is_host?'office':'school'}`);
         const description=element('div');description.append(element('strong',building.building_name),element('span',`${building.building_use} · ${building.is_host?'PV host':'hypothetical participant'}`));
+        const details=element('details',undefined,'candidate-evidence');
+        details.append(element('summary','Evidence & assumptions'));
+        details.append(element('p',`Geometry/as-built status: ${building.geometry_status}. Hourly building meters: unavailable. Participation and electrical eligibility: unverified.`));
+        details.append(element('p',building.is_host?'Existing PV is visually confirmed; module specifications and installed kWp are unknown.':`Existing PV status: ${building.existing_pv_status}. Building-use patterns are hypotheses until sourced simulations are prepared.`));
+        if(building.source_url) {
+          const source=element('a','Publisher source ↗','inline-source');source.href=building.source_url;source.target='_blank';source.rel='noreferrer';details.append(source);
+        }
+        description.append(details);
         item.append(icon,description);if(building.is_host) item.append(element('span','Host','right-label'));inventory.append(item);
       }
       inventory.append(element('p','Candidate buildings only. Participation, electrical connections and legal eligibility are unverified.','footnote'));
@@ -209,7 +223,7 @@
       text('sidebar-model',`${model.configuration_count} office simulation configurations.`);
     }
     for (const [view,stage] of Object.entries({solar:'pvgis',demand:'demand',sharing:'sharing',impact:'impact'})) {
-      const item=data[stage], container=$(`pending-${view}`);container.replaceChildren(element('strong','PENDING · MISSING_SOURCE_INPUT'),element('p',item.message));
+      const item=data[stage], container=$(`pending-${view}`);container.replaceChildren(element('strong',stage==='pvgis'&&item.hypothetical_state==='available'?'ACTUAL SYSTEM PENDING · HYPOTHETICAL PVGIS AVAILABLE':'PENDING · MISSING_SOURCE_INPUT'),element('p',item.message));
       const list=element('ul');item.missing_inputs.forEach(input=>list.append(element('li',input)));container.append(list);
     }
     const evidence=$('evidence-records');evidence.replaceChildren(element('h2','Repository evidence register'));
@@ -224,6 +238,7 @@
       $('view-roof').append(sourceNote);
     }
     setRoof(state.roofScenario);
+    window.RoofscapesPV?.render(data,{selectRoof:setRoof,openView:activate});
     $('export-config').disabled=false;$('export-config-mobile').disabled=false;
   }
   function exportTemplate() {
@@ -243,6 +258,7 @@
       provenance:{commit:data.status.commit,model_version:data.model.model_version??null,
         scenario_sources:data.roof.assessments[state.assessment]?.provenance??[],source_dates:data.reference.source_dates??null},
       pv_hourly:null,demand_hourly:null,scenario_results:null,impact_results:null};
+    payload.pvgis_sensitivity_preview=window.RoofscapesPV?.getSelection()??null;
     const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));
     const link=document.createElement('a');link.href=url;link.download='roofscapes_ui_scenario_template.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   }
