@@ -1,0 +1,13 @@
+{
+  "provider": "Google Stitch",
+  "homepage": "https://stitch.google.com/?pli=1",
+  "mcp_url": "https://stitch.googleapis.com/mcp",
+  "project_title": "Roofscapes Research Studio",
+  "project_url": null,
+  "project_resource": null,
+  "project_created": false,
+  "connection_status": "connector_registered_authentication_pending",
+  "approved_ui_source": "UI Interface/Roofscapes_UI_Template_Editable_Package/index.html",
+  "integrated_ui": "ui/index.html",
+  "purpose": "Future graphic refinement of the approved seven-view research dashboard; preserve data contracts and research evidence."
+}
