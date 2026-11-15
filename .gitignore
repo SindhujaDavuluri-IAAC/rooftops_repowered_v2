@@ -429,6 +429,8 @@ FodyWeavers.xsd
 
 # Python research pipeline: source/configuration and compact reports stay trackable.
 /.venv/
+/.venv-ui/
+/ui/.test-output/
 __pycache__/
 *.py[cod]
 /.pytest_cache/
