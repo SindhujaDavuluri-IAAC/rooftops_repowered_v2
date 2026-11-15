@@ -14,6 +14,16 @@ def validate_generation_role(settings):
         raise InputError('This provisional rooftop record is not cleared for case-study energy accounting. Verify capacity/design and document a separate approved generation record first.')
 
 
+def validate_case_study_supply(frame):
+    """Reject explicitly hypothetical/ineligible series even if manually repointed."""
+    if 'hypothetical' in frame and frame.hypothetical.astype(str).str.lower().eq('true').any():
+        raise InputError('Hypothetical PVGIS sensitivity cannot supply verified case-study energy sharing.')
+    if 'energy_sharing_eligible' in frame and not frame.energy_sharing_eligible.astype(str).str.lower().eq('true').all():
+        raise InputError('PV series is explicitly ineligible or unverified for case-study energy sharing.')
+    if 'generation_role' in frame and frame.generation_role.isin(['counterfactual_validation_only','existing_unverified']).any():
+        raise InputError('Counterfactual/unverified generation cannot be used as existing case-study supply.')
+
+
 def import_hourly(path, timestamp_basis, power_unit='W', interval_hours=1.0):
     """Read a PVGIS seriescalc export (time,P); never infer a host or capacity.
 

@@ -1,5 +1,20 @@
 # Input and output contracts
 
+## Existing PV and hypothetical PVGIS
+
+`config/a160_existing_pv.json` explicitly keeps actual installed capacity, module
+count/Wp, tilt/orientation and inverter details unknown. Image identity/coverage
+do not populate those fields. `config/pvgis_hypothetical.json` separately defines
+explicit sensitivity assumptions; automatic `seriescalc` acquisition reuses the
+existing importer and temporal validation. See [step 03](../pipeline/step_03_pvgis/README.md).
+
+Hypothetical normalized series are stored under
+`datasets/processed/pvgis/A160/hypothetical/`, with `data_origin=SIMULATED_PHYSICS`,
+scenario/model/role metadata, `hypothetical=true` and `energy_sharing_eligible=false`.
+Original UTC minute offsets are retained. The actual case-study supply path is
+not written. Case-study `match` rejects explicit hypothetical/false-eligibility
+flags even if a user manually repoints its PV path. Actual generation remains null.
+
 ## A160 dual rooftop milestone
 
 `config/a160_assessments.json` is the active rooftop protocol. The retrospective

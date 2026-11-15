@@ -57,6 +57,12 @@ def main(argv=None):
     pv.add_argument('--input', required=True)
     pv.add_argument('--settings', required=True, help='JSON with roof_id, capacity_kwp, timestamp_basis, power_unit, tilt, azimuth, loss_percent, weather_year and source_url')
     pv.add_argument('--output', default='datasets/processed/pv_hourly.csv')
+    acquire = commands.add_parser('pvgis-acquire', help='Acquire official hourly PVGIS responses for separate hypothetical roof-capacity sensitivity')
+    acquire.add_argument('--settings', default='config/pvgis_hypothetical.json')
+    manual = commands.add_parser('pvgis-import-hypothetical', help='Manual CSV fallback for a separate hypothetical PVGIS scenario; never enables sharing')
+    manual.add_argument('--settings', default='config/pvgis_hypothetical.json')
+    manual.add_argument('--input', required=True)
+    manual.add_argument('--scenario', required=True)
     roof = commands.add_parser('roof-capacity', help='Dated/reviewed roof geometry -> estimated panel-capacity scenarios')
     roof.add_argument('--settings', default='config/roof_capacity.json')
     milestone = commands.add_parser('roof-feasibility', help='A160 rooftop-only retrospective/reference/additional assessments and PVGIS handoff')
@@ -79,6 +85,17 @@ def main(argv=None):
         cfg = load_config(args.config)
         if args.command == 'status':
             status(cfg)
+        elif args.command in ('pvgis-acquire','pvgis-import-hypothetical'):
+            from pipeline.step_03_pvgis.acquire import run
+            result=run(args.settings, getattr(args,'input',None), getattr(args,'scenario',None))
+            print(json.dumps({'available_scenarios':result['available_scenarios'],'failed_scenarios':result['failed_scenarios'],
+                'actual_installed_capacity_kwp':None,'energy_sharing_eligible':False},indent=2))
+            if args.command=='pvgis-acquire' and result['failed_scenarios']:
+                return 2
+            if args.command=='pvgis-import-hypothetical':
+                selected=next(row for row in result['scenarios'] if row['scenario_id']==args.scenario)
+                if selected['status'] not in ('available','not_applicable_zero_capacity'):
+                    return 2
         elif args.command == 'roof-feasibility':
             from pipeline.step_02_roof_capacity.milestone import run
             run(args.settings, args.rebuild_prediction)
@@ -151,6 +168,8 @@ def main(argv=None):
             from pipeline.step_07_energy_balance.evaluate import evaluate
             case = case_ready(cfg)
             pv = pd.read_csv(require_file(resolve(case['pv_csv'])))
+            from pipeline.step_03_pvgis.importer import validate_case_study_supply
+            validate_case_study_supply(pv)
             demand = pd.read_csv(require_file(resolve(case['demand_csv'])))
             if 'data_origin' not in demand or demand.data_origin.isna().any():
                 raise InputError('Demand needs a data_origin label for every row (observed, simulated or predicted).')
