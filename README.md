@@ -16,6 +16,11 @@ See [the results and limitations](reports/roof_capacity/A160/README.md) and
 Existing PV is confirmed; retrospective potential and additional capacity have
 separate outputs. The working demand surrogate is unchanged.
 
+The approved seven-view UI is integrated as a local read-only dashboard. Launch
+with `.\.venv\Scripts\python.exe -m ui.server`, then open `http://127.0.0.1:8765`.
+See [UI instructions](ui/README.md), [implementation/screenshots](ui/docs/IMPLEMENTATION_REPORT.md)
+and [persistent Google Stitch setup](ui/integrations/README.md).
+
 ## Run locally
 
 Use the project's existing Python environment from the repository root:

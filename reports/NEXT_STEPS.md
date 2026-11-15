@@ -1,5 +1,15 @@
 # Project progress and next steps
 
+## Read-only UI integration (15 November 2026)
+
+The approved seven-view prototype is connected to real A160 roof/reference and
+office-model reports. Run `python -m ui.server`; see [UI instructions](../ui/README.md)
+and [test/screenshots report](../ui/docs/IMPLEMENTATION_REPORT.md). Existing models,
+scientific outputs and validation gates are unchanged. Energy/impact stages stay
+pending. Google Stitch MCP is registered; authentication/project creation await
+the user's key in the masked local setup window. Next research input remains
+actual installed PV specifications and roof/access evidence, before PVGIS yield.
+
 ## A160 rooftop milestone (2026-11-15)
 
 Completed provisional dual assessment: retrospective geometric potential

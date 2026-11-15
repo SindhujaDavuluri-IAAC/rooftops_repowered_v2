@@ -58,4 +58,3 @@ The download button exports a JSON UI scenario **template** with the selected ro
 - [PVGIS](https://photovoltaic-geographic-information-system.ec.europa.eu/)
 - [EnergyPlus](https://energyplus.net/)
 - [A160 architectural project](https://www.batlleiroig.com/en/projects/oficines-almogavers-160-a-barcelona/)
-
