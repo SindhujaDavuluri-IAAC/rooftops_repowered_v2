@@ -1,14 +1,17 @@
 import pandas as pd
 import pytest
 
-from pipeline.__main__ import main
+from pipeline.__main__ import case_ready, main
+from pipeline.common import load_config
 from pipeline.case_study import validate_inventory
 from pipeline.common import InputError
 
 
 def test_matching_stops_until_host_selected(capsys):
-    assert main(['match']) == 2
-    assert 'Host selection is deferred' in capsys.readouterr().err
+    cfg = load_config()
+    cfg['case_study']['host_building_id'] = None
+    with pytest.raises(InputError, match='Host selection is deferred'):
+        case_ready(cfg)
 
 
 def test_inventory_requires_exactly_one_consistent_host_and_sources():

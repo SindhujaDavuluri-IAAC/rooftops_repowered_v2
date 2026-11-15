@@ -2,8 +2,8 @@ import pandas as pd
 import pytest
 
 from pipeline.common import InputError
-from pipeline.energy_balance.evaluate import evaluate
-from pipeline.impact_metrics.screen import REQUIRED, screen
+from pipeline.step_07_energy_balance.evaluate import evaluate
+from pipeline.step_08_impact_metrics.screen import REQUIRED, screen
 
 
 def test_missing_sources_stop_financial_and_emissions_claims():

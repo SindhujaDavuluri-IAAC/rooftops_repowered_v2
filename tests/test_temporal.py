@@ -3,7 +3,7 @@ import pytest
 
 from pipeline.common import InputError
 from pipeline.temporal import as_utc, standard_wall_time
-from pipeline.pvgis.importer import import_hourly
+from pipeline.step_03_pvgis.importer import import_hourly
 
 
 def test_fall_dst_repeated_civil_hour_preserves_two_utc_intervals():

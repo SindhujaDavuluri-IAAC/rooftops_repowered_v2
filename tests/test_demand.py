@@ -3,11 +3,11 @@ import pandas as pd
 import pytest
 
 from pipeline.common import InputError
-from pipeline.demand_preparation.prepare import split_buildings
-from pipeline.demand_preparation.features import make_features
-from pipeline.demand_xgboost.train import assert_disjoint
-from pipeline.demand_baseline_hour_of_week.model import GroupMeanBaseline
-from pipeline.demand_xgboost.predict import predict_frame
+from pipeline.step_04_demand_preparation.prepare import split_buildings
+from pipeline.step_04_demand_preparation.features import make_features
+from pipeline.step_05_demand_xgboost.train import assert_disjoint
+from pipeline.step_05_demand_baseline_hour_of_week.model import GroupMeanBaseline
+from pipeline.step_05_demand_xgboost.predict import predict_frame
 
 
 def test_disjoint_buildings_and_prior_experiment_excluded_from_new_test():

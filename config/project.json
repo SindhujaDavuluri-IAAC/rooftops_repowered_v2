@@ -10,9 +10,9 @@
     "scope": "One reference office geometry and explicitly simulated operating configurations; expand domain before applying to a selected real building."
   },
   "case_study": {
-    "status": "host_selection_deferred",
+    "status": "a160_rooftop_screening_complete_provisional",
     "timezone": "Europe/Madrid",
-    "host_building_id": null,
+    "host_building_id": "A160",
     "buildings_csv": "datasets/inputs/building_cluster.csv",
     "pv_csv": "datasets/processed/pv_hourly.csv",
     "demand_csv": "datasets/processed/demand_hourly.csv",

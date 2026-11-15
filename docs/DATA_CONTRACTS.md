@@ -1,7 +1,36 @@
 # Input and output contracts
 
-All paths below are relative to the repository root. The real host and
-participants remain unselected. Empty `_TEMPLATE` files are not observations.
+## A160 dual rooftop milestone
+
+`config/a160_assessments.json` is the active rooftop protocol. The retrospective
+predictor consumes cadastral footprint, classified LiDAR points and structural/
+module/scenario parameters only. Image-reference PV coverage is a scoring target;
+current array envelopes, roof boundary and access/plant masks are additional-
+feasibility inputs only. GeoJSON is WGS84; geometry calculations use EPSG:25831.
+
+`datasets/processed/roof_capacity/A160/{retrospective,additional}/roof_capacity_scenarios.csv`
+contains separate conservative/base/optimistic rows. `panel_count` and
+`estimated_kwp` describe assumed new modules, not observed installed specifications.
+The reference's observed module count and installed kWp remain null. Confidence
+is low, scenario spread is sensitivity rather than a statistical interval, and
+post-installation LiDAR limits retrospective independence.
+
+`datasets/inputs/roof_capacity/pvgis/` records `generation_role` as
+`counterfactual_validation_only`, `incremental_proposed`, or `existing_unverified`.
+Weather period and losses are unset. Select one scenario; never sum alternatives
+or treat retrospective generation as actual existing PV. Zero capacity skips
+simulation. These provisional records have `energy_sharing_eligible: false` and
+the case-study PVGIS importer rejects them until a separately verified generation
+record is supplied. Existing hourly-import settings without these new fields
+retain their prior behavior.
+
+See [the complete rooftop report](../reports/roof_capacity/A160/README.md).
+
+All paths below are relative to the repository root. A160 and the mixed-use
+participants are identified in the V2.2 handover; their geometry/parameters remain
+unverified. Empty `_TEMPLATE` files are not observations. Candidate identities
+are in `datasets/inputs/case_study_candidates.csv`, separate from a validated
+`building_cluster.csv` inventory.
 
 ## Building inventory and model inputs
 

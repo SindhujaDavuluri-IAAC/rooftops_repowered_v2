@@ -4,8 +4,18 @@
 [progress and next steps](reports/NEXT_STEPS.md) and
 [the method](docs/METHOD.md). The measured-data benchmark was evaluated and did
 not establish an XGBoost gain. The user then selected the office EnergyPlus
-simulation-surrogate route. The host remains deferred; all trained artifacts
+simulation-surrogate route. The V2.2 handover identifies A160 and a mixed-use
+cluster; roof geometry and site assumptions remain unverified. V1 roof-capacity
+code is integrated in `pipeline/step_02_roof_capacity/`. All trained artifacts
 belong in `pipeline/models/`. The original staged plan follows below.
+
+**2026-11-15 rooftop milestone update:** A160 footprint and dated public sources
+are obtained. Existing PV is confirmed. Run `python -m pipeline roof-feasibility`
+for separate retrospective validation and conditional additional-PV outputs.
+See [the results](reports/roof_capacity/A160/README.md); this update supersedes
+the older roof-selection/potential assumptions below. Post-installation LiDAR
+limits retrospective independence, installed kWp remains unknown, and the demand
+surrogate is unchanged. Downstream pipeline development remains deferred.
 
 **Studio constraint:** Post-midterm; approximately four-to-five weeks remain as of November 14, 2026. **One** final Barcelona building cluster, **one** primary trained AI model, transparent impact evaluation. The tool is a **pre-installation design support prototype**, not a live energy-community controller.
 

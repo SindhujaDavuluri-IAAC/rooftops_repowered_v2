@@ -3,9 +3,9 @@ import pandas as pd
 import pytest
 
 from pipeline.common import InputError
-from pipeline.simulation_surrogate.train import hour_start_labels, features
-from pipeline.simulation_surrogate.simulate import compact_schedule
-from pipeline.simulation_surrogate.predict import predict_frame
+from pipeline.step_05_simulation_surrogate.train import hour_start_labels, features
+from pipeline.step_05_simulation_surrogate.simulate import compact_schedule
+from pipeline.step_05_simulation_surrogate.predict import predict_frame
 
 
 def test_energyplus_hour_end_24_maps_to_last_interval_of_same_day():

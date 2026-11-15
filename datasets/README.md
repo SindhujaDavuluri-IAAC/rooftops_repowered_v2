@@ -53,9 +53,9 @@ These are mentioned in the handoff but are not a defined bulk CSV download:
 
 | Source | Status / input needed |
 | --- | --- |
-| PVGIS | Pending host coordinates, kWp, orientation, tilt, losses and weather year. Save the site-specific hourly CSV in `manual_exports/pvgis/`. |
-| Barcelona solar map | Pending selected host roof. Save roof-specific estimates and their source/date in `manual_exports/barcelona_solar_map/`. Bulk roof download is not established. |
-| ICGC LiDAR and imagery | Optional; select roof/area, product and survey coverage before downloading tiles. Not required when solar-map roof estimates suffice. |
+| PVGIS | A160 role-separated capacity/tilt/orientation inputs are in `inputs/roof_capacity/pvgis/`. Choose weather period/losses before hourly export; existing installed kWp remains unknown. |
+| Barcelona solar map | Public polygons near A160 obtained through CARTO. Matching record dates to 2015; legacy comparison only. |
+| ICGC LiDAR and imagery | A160 LAZ acquired 2022-06-01; finalized ortho 2025-06-18 and newest provisional image 2026-03-16 obtained under `raw/roof_capacity/A160/`. |
 | DOE/NREL End-Use Load Profiles | Optional U.S. simulation reference; select release, building archetype and scenario before downloading a subset. No U.S. data is substituted for Barcelona ground truth. |
 | REE/REData | Pending selected emissions-accounting year, system boundary and tariff assumptions; save dated exports in `manual_exports/emissions_tariffs/`. |
 | ESIOS | Excluded by the handoff because authenticated API dependencies are out of scope. |

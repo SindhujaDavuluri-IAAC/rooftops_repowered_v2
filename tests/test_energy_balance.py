@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 
 from pipeline.common import InputError
-from pipeline.energy_balance.evaluate import evaluate, planned_shares
+from pipeline.step_07_energy_balance.evaluate import evaluate, planned_shares
 
 
 def inputs(host_load=100, neighbour_load=25):

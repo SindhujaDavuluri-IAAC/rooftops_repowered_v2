@@ -1,12 +1,20 @@
 # Rooftops RePowered V2
 
 AI-assisted rooftop solar and building-electricity matching for a small Barcelona
-cluster. This is a reproducible pre-installation research prototype. The real
-host roof and neighboring participants are intentionally unselected.
+cluster. This is a reproducible planning and validation research prototype. The real
+host is A160 (Almogàvers 160); the identified mixed-use participants are ITAEB,
+Ciutat de Granada 95–97 housing and NH Diagonal Poblenou. Rooftop screening is provisional; operating assumptions
+and electrical eligibility still need verification.
 
 Start with [current progress and next steps](reports/NEXT_STEPS.md),
 [the implementation pipeline](PIPELINE.md), [method and limitations](docs/METHOD.md)
 and [input contracts](docs/DATA_CONTRACTS.md).
+
+The **A160 rooftop feasibility milestone is complete as provisional screening**.
+See [the results and limitations](reports/roof_capacity/A160/README.md) and
+[annotated rooftop figure](reports/roof_capacity/A160/A160_two_assessments.png).
+Existing PV is confirmed; retrospective potential and additional capacity have
+separate outputs. The working demand surrogate is unchanged.
 
 ## Run locally
 
@@ -43,24 +51,40 @@ After the measured-data benchmark, the agreed next AI route is EnergyPlus-derive
 office demand with explicitly controlled operating scenarios:
 
 ```powershell
-.\.venv\Scripts\python.exe -m pipeline.simulation_surrogate.setup
-.\.venv\Scripts\python.exe -m pipeline.simulation_surrogate.simulate
+.\.venv\Scripts\python.exe -m pipeline.step_05_simulation_surrogate.setup
+.\.venv\Scripts\python.exe -m pipeline.step_05_simulation_surrogate.simulate
 .\.venv\Scripts\python.exe -m pipeline train-office-surrogate
 ```
 
 The portable engine is isolated in `tools/energyplus/`; no system installation
 or PATH change is required. The initial 36 configurations use one official office
 reference model with Barcelona IWEC weather. They are not real local measurements.
-See [the simulation workflow](pipeline/simulation_surrogate/README.md) and
+See [the simulation workflow](pipeline/step_05_simulation_surrogate/README.md) and
 [the simulation model card](reports/simulation_surrogate/MODEL_CARD.md).
 Any AI gain here means improved approximation of the simulator within its tested
 domain, not verified prediction of the eventual selected building.
 
-## Connect the case study later
+## A160 rooftop milestone and later case-study connection
+
+The folders now follow `step_NN_name` execution order. See
+[the stage index](pipeline/README.md). V1 roof extraction and panel packing are
+integrated in [step 02](pipeline/step_02_roof_capacity/README.md):
+
+```powershell
+.\.venv\Scripts\python.exe -m pipeline roof-feasibility
+```
+
+This offline command regenerates the two assessments from cached real A160 data,
+retaining the frozen retrospective prediction unless explicitly rebuilt. Current
+additional capacity is conditional; observed installed kWp remains unknown.
+`roof-capacity` and `roof-pvgis-settings` remain generic strict workflows for a
+future reviewed geometry case; A160 uses `config/a160_assessments.json` instead.
 
 1. Fill the building/roof templates under `datasets/inputs/`, retaining sources.
-2. Set `case_study.host_building_id` and file paths in `config/project.json`.
-3. Export PVGIS for the actual roof; complete the PV settings template before import.
+2. Review the A160 identity in `config/project.json` and assumptions/annotations
+   in `config/a160_assessments.json` and `config/a160_pv_reference_annotation.json`.
+3. Select the appropriate separate PVGIS handoff under `datasets/inputs/roof_capacity/pvgis/`;
+   verify design/capacity and choose weather period/losses before generation import.
 4. Supply sourced hourly weather/building inputs and select a model supported by
    those buildings. The office surrogate deliberately rejects arbitrary geometry
    scaling; add the new geometry to its simulation domain first.
@@ -85,7 +109,7 @@ environmental benefit is substituted for missing information.
 
 | Folder | Contents |
 | --- | --- |
-| `config/` | Project paths, deferred case study, experiment and simulation settings |
+| `config/` | Project paths, A160 roof/case-study inputs, experiment and simulation settings |
 | `pipeline/` | Organized processing, model and accounting modules |
 | `pipeline/models/` | All trained artifacts, schemas and manifests |
 | `datasets/raw/` | Original downloaded publisher data |

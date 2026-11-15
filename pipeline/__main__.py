@@ -19,6 +19,7 @@ def status(cfg):
     models = directory(cfg, 'models')
     readiness = directory(cfg, 'reports') / 'demand_model/readiness.json'
     state = {'case_study': cfg['case_study']['status'], 'host_building_id': cfg['case_study']['host_building_id'],
+             'roof_capacity_readiness': json.loads((directory(cfg, 'reports') / 'roof_capacity/A160/readiness.json').read_text(encoding='utf-8')) if (directory(cfg, 'reports') / 'roof_capacity/A160/readiness.json').exists() else 'not_run',
              'active_demand_route': cfg.get('demand_model', {}).get('route', 'measured_bdg2'),
              'audit_exists': (root / 'processed/data_quality_report.csv').exists(),
              'prepared_demand_exists': (root / 'processed/train_meter_hourly.csv.gz').exists(),
@@ -56,33 +57,65 @@ def main(argv=None):
     pv.add_argument('--input', required=True)
     pv.add_argument('--settings', required=True, help='JSON with roof_id, capacity_kwp, timestamp_basis, power_unit, tilt, azimuth, loss_percent, weather_year and source_url')
     pv.add_argument('--output', default='datasets/processed/pv_hourly.csv')
+    roof = commands.add_parser('roof-capacity', help='Dated/reviewed roof geometry -> estimated panel-capacity scenarios')
+    roof.add_argument('--settings', default='config/roof_capacity.json')
+    milestone = commands.add_parser('roof-feasibility', help='A160 rooftop-only retrospective/reference/additional assessments and PVGIS handoff')
+    milestone.add_argument('--settings', default='config/a160_assessments.json')
+    milestone.add_argument('--rebuild-prediction', action='store_true', help='Explicitly regenerate the retrospective geometry before reference annotation')
+    fetch = commands.add_parser('roof-fetch-building', help='Cache public geocoder/cadastral candidate; does not verify as-built geometry')
+    fetch.add_argument('--settings', default='config/roof_capacity.json')
+    export = commands.add_parser('roof-pvgis-settings', help='Export PVGIS settings from a reviewed positive-capacity scenario')
+    export.add_argument('--settings', default='config/roof_capacity.json')
+    export.add_argument('--scenario', default='base')
+    export.add_argument('--output', default='datasets/inputs/A160_pvgis_settings.json')
+    city = commands.add_parser('roof-compare-map', help='Independent comparison against a dated municipal GeoJSON export')
+    city.add_argument('--settings', default='config/roof_capacity.json')
+    city.add_argument('--input', required=True)
+    city.add_argument('--source-date', required=True)
+    city.add_argument('--source-url', required=True)
+    city.add_argument('--output', default='datasets/processed/roof_capacity/A160/municipal_map_comparison.csv')
     args = parser.parse_args(argv)
     try:
         cfg = load_config(args.config)
         if args.command == 'status':
             status(cfg)
+        elif args.command == 'roof-feasibility':
+            from pipeline.step_02_roof_capacity.milestone import run
+            run(args.settings, args.rebuild_prediction)
+        elif args.command == 'roof-capacity':
+            from pipeline.step_02_roof_capacity.adapter import run
+            print(run(args.settings).to_string(index=False))
+        elif args.command == 'roof-fetch-building':
+            from pipeline.step_02_roof_capacity.acquisition import fetch_building
+            print(json.dumps(fetch_building(args.settings), indent=2))
+        elif args.command == 'roof-pvgis-settings':
+            from pipeline.step_02_roof_capacity.adapter import export_pvgis_settings
+            print(json.dumps(export_pvgis_settings(args.settings, args.scenario, args.output), indent=2))
+        elif args.command == 'roof-compare-map':
+            from pipeline.step_02_roof_capacity.municipal_comparison import compare
+            print(json.dumps(compare(args.settings, args.input, args.source_date, args.source_url, args.output), indent=2))
         elif args.command == 'audit':
-            from pipeline.data_audit.audit import run
+            from pipeline.step_01_data_audit.audit import run
             run(cfg)
         elif args.command == 'prepare':
-            from pipeline.demand_preparation.prepare import run
+            from pipeline.step_04_demand_preparation.prepare import run
             run(cfg)
         elif args.command == 'train':
-            from pipeline.demand_xgboost.train import run
+            from pipeline.step_05_demand_xgboost.train import run
             run(cfg)
         elif args.command == 'train-office-surrogate':
-            from pipeline.simulation_surrogate.train import run
+            from pipeline.step_05_simulation_surrogate.train import run
             run()
         elif args.command == 'predict-office':
-            from pipeline.simulation_surrogate.predict import run
+            from pipeline.step_05_simulation_surrogate.predict import run
             run(args.input, args.output)
         elif args.command in ('predict', 'predict-bdg2'):
             route = cfg.get('demand_model', {}).get('route', 'measured_bdg2')
             if args.command == 'predict-bdg2' or route == 'measured_bdg2':
-                from pipeline.demand_xgboost.predict import run
+                from pipeline.step_05_demand_xgboost.predict import run
                 run(cfg, args.input, args.output, args.model)
             elif route == 'office_energyplus_surrogate':
-                from pipeline.simulation_surrogate.predict import run
+                from pipeline.step_05_simulation_surrogate.predict import run
                 if args.model != 'recommended':
                     raise InputError('--model overrides apply to predict-bdg2. Configure demand_model.route/artifact for the primary route.')
                 output = args.output or cfg['case_study']['demand_csv']
@@ -91,14 +124,15 @@ def main(argv=None):
                 raise InputError(f'Unsupported demand_model.route: {route}')
         elif args.command == 'plan-shares':
             import pandas as pd
-            from pipeline.energy_balance.evaluate import planned_shares
+            from pipeline.step_07_energy_balance.evaluate import planned_shares
             shares = planned_shares(pd.read_csv(require_file(resolve(args.input))))
             target = resolve(args.output)
             target.parent.mkdir(parents=True, exist_ok=True)
             shares.to_csv(target, index=False)
         elif args.command == 'import-pvgis':
-            from pipeline.pvgis.importer import import_hourly
+            from pipeline.step_03_pvgis.importer import import_hourly, validate_generation_role
             settings = json.loads(require_file(resolve(args.settings)).read_text(encoding='utf-8'))
+            validate_generation_role(settings)
             required = ('roof_id', 'capacity_kwp', 'timestamp_basis', 'power_unit', 'tilt', 'azimuth', 'loss_percent', 'weather_year', 'source_url')
             missing = [key for key in required if settings.get(key) is None]
             if missing:
@@ -114,7 +148,7 @@ def main(argv=None):
         elif args.command == 'match':
             import pandas as pd
             from pipeline.case_study import validate_inventory
-            from pipeline.energy_balance.evaluate import evaluate
+            from pipeline.step_07_energy_balance.evaluate import evaluate
             case = case_ready(cfg)
             pv = pd.read_csv(require_file(resolve(case['pv_csv'])))
             demand = pd.read_csv(require_file(resolve(case['demand_csv'])))
@@ -137,7 +171,7 @@ def main(argv=None):
             print(summary.to_string(index=False))
         elif args.command == 'impacts':
             import pandas as pd
-            from pipeline.impact_metrics.screen import screen
+            from pipeline.step_08_impact_metrics.screen import screen
             case = case_ready(cfg)
             root = directory(cfg, 'datasets')
             hourly = pd.read_csv(require_file(root / 'results/hourly_balance.csv'))

@@ -1,31 +1,34 @@
-# Model pipeline
+# Step-by-step execution
 
-Separate work folders for the demand models specified in `../PIPELINE.md`:
+| Step | Folder | Purpose / command |
+| --- | --- | --- |
+| 01 | `step_01_data_audit/` | Source audit: `python -m pipeline audit` |
+| 02 | `step_02_roof_capacity/` | A160 dual rooftop assessment: `python -m pipeline roof-feasibility` |
+| 03 | `step_03_pvgis/` | Roof-specific generation: `python -m pipeline import-pvgis ...` |
+| 04 | `step_04_demand_preparation/` | Measured benchmark cohort: `python -m pipeline prepare` |
+| 05 | `step_05_demand_baseline_hour_of_week/` | Hour-of-week reference estimator |
+| 05 | `step_05_demand_baseline_seasonal/` | Seasonal reference estimator |
+| 05 | `step_05_demand_xgboost/` | Measured-data benchmark: `python -m pipeline train` |
+| 05 | `step_05_simulation_surrogate/` | Active office route: `python -m pipeline train-office-surrogate` |
+| 06 | `step_06_scenarios/` | Explicit operating scenarios |
+| 07 | `step_07_energy_balance/` | Pre-agreed shares and balances: `plan-shares`, `match` |
+| 08 | `step_08_impact_metrics/` | Sourced financial/carbon/benefit screening: `impacts` |
 
-- `demand_xgboost/`: primary trained hourly electricity-demand model.
-- `demand_baseline_hour_of_week/`: building-type and hour-of-week reference baseline.
-- `demand_baseline_seasonal/`: seasonal reference baseline.
-- `models/`: saved trained models and their feature schemas/training manifests.
+Step 05 folders are alternatives/benchmarks in the same model-development stage,
+not four models that must all drive the case study. Demand development can run
+independently while roof/PVGIS inputs for steps 02–03 are collected.
 
-Additional components:
+`models/` remains unnumbered because it stores artifacts rather than executing a
+step. **All trained artifacts remain in `pipeline/models/`.** Old baseline
+pickles still load through a lazy compatibility alias; no model was retrained or
+rewritten merely to rename a folder. Shared config/time/validation helpers remain
+at package root.
 
-- `data_audit/`: streaming source quality reports.
-- `demand_preparation/`: BDG2 joins, features and disjoint building partitions.
-- `simulation_surrogate/`: EnergyPlus office scenarios, training and restricted inference.
-- `pvgis/`: explicit PVGIS power-to-hourly-energy import.
-- `scenarios/`: manually supplied schedule adjustments, clearly labeled synthetic.
-- `energy_balance/`: four allocation comparisons with strict conservation.
-- `impact_metrics/`: sourced cost/emissions and gross participant-benefit screening.
+A160's footprint is identified and existing PV is confirmed. Step 02 separates
+retrospective potential from current additional capacity. Both remain low-confidence
+screening; installed specifications and electrical eligibility are unverified.
+See [the milestone report](../reports/roof_capacity/A160/README.md). It does not
+execute demand training or complete the downstream energy-community pipeline.
 
-Run `python -m pipeline --help` from the project root. Models are implemented;
-see generated model cards under `reports/` for the actual benchmark outcomes.
-BDG2 XGBoost did not beat the primary baseline. The office simulator-surrogate is
-the agreed next AI route; measured BDG2 experiments remain as benchmarks.
-
-Save every trained artifact under `pipeline/models/` relative to the project root.
-Keep original/processed data under `datasets/`. The host is configured separately
-in `config/project.json` and remains unset.
-
-PV generation uses PVGIS exports. Allocation and impacts are deterministic accounting,
-not extra AI models. EnergyPlus supplies synthetic physical training targets for
-the alternative demand surrogate; no new solar physics model is trained.
+See [roof-capacity instructions](step_02_roof_capacity/README.md),
+[project structure](../docs/PROJECT_STRUCTURE.md) and `python -m pipeline --help`.

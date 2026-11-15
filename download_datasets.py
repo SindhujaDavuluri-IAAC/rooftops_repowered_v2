@@ -41,7 +41,12 @@ def write_json(path, value):
 
 
 def sources():
-    handoff = (BASE / 'rooftops_repowered_v2_context.txt').read_text(encoding='utf-8')
+    # The original handoff was renamed by the user; the supplement has no source manifest.
+    candidates = [BASE / 'rooftops_repowered_v2_1_context.txt', BASE / 'rooftops_repowered_v2_context.txt']
+    handoff_path = next((p for p in candidates if p.is_file()), None)
+    if handoff_path is None:
+        raise FileNotFoundError('Original V2/V2.1 handoff with section O source manifest is missing.')
+    handoff = handoff_path.read_text(encoding='utf-8')
     section = handoff.split('O. ACTUAL SOURCE MANIFEST', 1)[1].split('P. APPENDIX', 1)[0]
     pattern = r'ID: (\S+)\s+LOCAL FILE: ([^\r\n]+)\s+DOWNLOAD URL: (\S+)\s+CATALOG: (\S+)\s+PURPOSE: ([^\r\n]+)\s+SIZE NOTE: ([^\r\n]+)'
     records = [dict(zip(('id', 'local_file', 'url', 'catalog', 'purpose', 'size_note'), m))
